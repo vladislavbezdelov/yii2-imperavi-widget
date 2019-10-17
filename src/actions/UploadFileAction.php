@@ -11,6 +11,7 @@
 namespace vova07\imperavi\actions;
 
 use App;
+use yii\base\Action;
 use domain\v1\document\classes\StaticServerFileSync;
 use domain\v1\profile\repositories\ar\UserProfileRepository;
 use vova07\imperavi\Widget;
