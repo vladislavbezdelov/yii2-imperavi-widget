@@ -142,55 +142,59 @@ class UploadFileAction extends Action
      */
     public function run()
     {
-    	if (!Yii::$app->request->isPost) {
-		    return $result = ['eror' => 'NoPost'];
+    	try {
+		    if (!Yii::$app->request->isPost) {
+			    return $result = ['eror' => 'NoPost'];
+		    }
+		    if (Yii::$app->request->isPost) {
+			    Yii::$app->response->format = Response::FORMAT_JSON;
+
+			    $file = UploadedFile::getInstanceByName($this->uploadParam);
+			    $model = new DynamicModel(['file' => $file]);
+			    $model->addRule('file', $this->_validator, $this->validatorOptions)->validate();
+
+			    return $result = ['eror' => 'in Post'];
+			    if ($model->hasErrors()) {
+				    $result = [
+					    'error' => $model->getFirstError('file'),
+				    ];
+			    } else {
+				    if ($this->unique === true && $model->file->extension) {
+					    $model->file->name = uniqid() . '.' . $model->file->extension;
+				    } elseif ($this->translit === true && $model->file->extension) {
+					    $model->file->name = Inflector::slug($model->file->baseName) . '.' . $model->file->extension;
+				    }
+
+				    if (file_exists($this->path . $model->file->name) && $this->replace === false) {
+					    return [
+						    'error' => Yii::t('vova07/imperavi', 'ERROR_FILE_ALREADY_EXIST'),
+					    ];
+				    }
+
+				    if ($model->file->saveAs($this->path . $model->file->name)) {
+					    $setImage = $this->setImage($model);
+					    if ($setImage['file']) {
+						    $result = ['id' => $model->file->name, 'filelink' => $this->url . $model->file->name];
+					    } else {
+						    $result = ['error' => 'error'];
+					    }
+					    if ($this->uploadOnlyImage !== true) {
+						    $result['filename'] = $model->file->name;
+					    }
+				    } else {
+					    $result = [
+						    'error' => Yii::t('vova07/imperavi', 'ERROR_CAN_NOT_UPLOAD_FILE'),
+					    ];
+				    }
+			    }
+
+			    return $result;
+		    } else {
+			    throw new BadRequestHttpException('Only POST is allowed');
+		    }
+	    } catch (\Exception $exception) {
+    		return ['error' => $exception->getMessage()];
 	    }
-        if (Yii::$app->request->isPost) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-
-	        $file = UploadedFile::getInstanceByName($this->uploadParam);
-	        $model = new DynamicModel(['file' => $file]);
-	        $model->addRule('file', $this->_validator, $this->validatorOptions)->validate();
-
-	        return $result = ['eror' => 'in Post'];
-	        if ($model->hasErrors()) {
-                $result = [
-                    'error' => $model->getFirstError('file'),
-                ];
-            } else {
-                if ($this->unique === true && $model->file->extension) {
-                    $model->file->name = uniqid() . '.' . $model->file->extension;
-                } elseif ($this->translit === true && $model->file->extension) {
-                    $model->file->name = Inflector::slug($model->file->baseName) . '.' . $model->file->extension;
-                }
-
-                if (file_exists($this->path . $model->file->name) && $this->replace === false) {
-                    return [
-                        'error' => Yii::t('vova07/imperavi', 'ERROR_FILE_ALREADY_EXIST'),
-                    ];
-                }
-
-                if ($model->file->saveAs($this->path . $model->file->name)) {
-	                $setImage = $this->setImage($model);
-	                if ($setImage['file']) {
-		                $result = ['id' => $model->file->name, 'filelink' => $this->url . $model->file->name];
-	                } else {
-	                	$result = ['error' => 'error'];
-	                }
-                    if ($this->uploadOnlyImage !== true) {
-                        $result['filename'] = $model->file->name;
-                    }
-                } else {
-                    $result = [
-                        'error' => Yii::t('vova07/imperavi', 'ERROR_CAN_NOT_UPLOAD_FILE'),
-                    ];
-                }
-            }
-
-            return $result;
-        } else {
-            throw new BadRequestHttpException('Only POST is allowed');
-        }
     }
 
 	/**
