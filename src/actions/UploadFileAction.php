@@ -153,7 +153,6 @@ class UploadFileAction extends Action
 			    $model = new DynamicModel(['file' => $file]);
 			    $model->addRule('file', $this->_validator, $this->validatorOptions)->validate();
 
-			    return $result = ['eror' => 'in Post'];
 			    if ($model->hasErrors()) {
 				    $result = [
 					    'error' => $model->getFirstError('file'),
