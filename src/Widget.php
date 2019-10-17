@@ -193,7 +193,7 @@ class Widget extends BaseWidget
     protected function registerDefaultCallbacks()
     {
         if (isset($this->settings['imageUpload']) && !isset($this->settings['imageUploadErrorCallback'])) {
-            $message = Yii::t('vova07/imperavi', 'ERROR_DURING_UPLOAD_PROCESS'). implode('-  -', $this->settings['imageUploadErrorCallback']);
+            $message = Yii::t('vova07/imperavi', 'ERROR_DURING_UPLOAD_PROCESS');
 
             $this->settings['imageUploadErrorCallback'] = new JsExpression('function (response) { alert("' . $message . '"); }');
         }
