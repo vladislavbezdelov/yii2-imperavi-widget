@@ -142,15 +142,18 @@ class UploadFileAction extends Action
      */
     public function run()
     {
+    	if (!Yii::$app->request->isPost) {
+		    return $result = ['eror' => 'NoPost'];
+	    }
         if (Yii::$app->request->isPost) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return $result = ['eror' => 'error'];
 
-            $file = UploadedFile::getInstanceByName($this->uploadParam);
-            $model = new DynamicModel(['file' => $file]);
-            $model->addRule('file', $this->_validator, $this->validatorOptions)->validate();
+	        $file = UploadedFile::getInstanceByName($this->uploadParam);
+	        $model = new DynamicModel(['file' => $file]);
+	        $model->addRule('file', $this->_validator, $this->validatorOptions)->validate();
 
-            if ($model->hasErrors()) {
+	        return $result = ['eror' => 'in Post'];
+	        if ($model->hasErrors()) {
                 $result = [
                     'error' => $model->getFirstError('file'),
                 ];
