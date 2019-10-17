@@ -169,22 +169,15 @@ class UploadFileAction extends Action
 						    'error' => Yii::t('vova07/imperavi', 'ERROR_FILE_ALREADY_EXIST'),
 					    ];
 				    }
-
-//				    if ($model->file->saveAs($this->path . $model->file->name)) {
-					    $setImage = $this->setImage($model);
-					    if ($setImage['file']) {
-						    $result = ['id' => $model->file->name, 'filelink' => $this->url . $model->file->name];
-					    } else {
-						    $result = ['error' => 'error'];
-					    }
-					    if ($this->uploadOnlyImage !== true) {
-						    $result['filename'] = $model->file->name;
-					    }
-//				    } else {
-//					    $result = [
-//						    'error' => Yii::t('vova07/imperavi', 'ERROR_CAN_NOT_UPLOAD_FILE'),
-//					    ];
-//				    }
+				    $setImage = $this->setImage($model);
+				    if ($setImage['file']) {
+					    $result = ['id' => $model->file->name, 'filelink' => $this->url . $model->file->name];
+				    } else {
+					    $result = ['error' => 'error'];
+				    }
+				    if ($this->uploadOnlyImage !== true) {
+					    $result['filename'] = $model->file->name;
+				    }
 			    }
 
 			    return $result;
@@ -210,7 +203,7 @@ class UploadFileAction extends Action
 				}
 			}
 			$this->modifyFileName($model, $modifiedAttributes);
-			$results = $this->sendUploadFiles($model, $modifiedAttributes, 'bank/');
+			$results = $this->sendUploadFiles($model, $modifiedAttributes, 'service/');
 			return $results;
 		}
 	}
