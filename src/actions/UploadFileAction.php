@@ -144,6 +144,7 @@ class UploadFileAction extends Action
     {
         if (Yii::$app->request->isPost) {
             Yii::$app->response->format = Response::FORMAT_JSON;
+            return $result = ['eror' => 'error'];
 
             $file = UploadedFile::getInstanceByName($this->uploadParam);
             $model = new DynamicModel(['file' => $file]);
