@@ -10,9 +10,11 @@
 
 namespace vova07\imperavi\actions;
 
+use App;
+use domain\v1\document\classes\StaticServerFileSync;
+use domain\v1\profile\repositories\ar\UserProfileRepository;
 use vova07\imperavi\Widget;
 use Yii;
-use yii\base\Action;
 use yii\base\DynamicModel;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
@@ -164,8 +166,10 @@ class UploadFileAction extends Action
                 }
 
                 if ($model->file->saveAs($this->path . $model->file->name)) {
-                    $result = ['id' => $model->file->name, 'filelink' => $this->url . $model->file->name];
-
+	                $setImage = $this->setImage($model);
+	                if ($setImage) {
+		                $result = ['id' => $model->file->name, 'filelink' => $this->url . $model->file->name];
+	                }
                     if ($this->uploadOnlyImage !== true) {
                         $result['filename'] = $model->file->name;
                     }
@@ -181,4 +185,65 @@ class UploadFileAction extends Action
             throw new BadRequestHttpException('Only POST is allowed');
         }
     }
+
+	/**
+	 * @param $model
+	 * @return mixed
+	 */
+	public function setImage($model)
+	{
+		if ($model) {
+			$uploadedAttributes = $model->getAttributes(['file']);
+			foreach ($uploadedAttributes as $key => $value) {
+				if ($value instanceof UploadedFile) {
+					$modifiedAttributes[$key] = $uploadedAttributes[$key]; //$modifiedAttributes store only model attributes which value is instance of UploadedFile
+				}
+			}
+			$this->modifyFileName($model, $modifiedAttributes);
+			$results = $this->sendUploadFiles($model, $modifiedAttributes, 'bank/');
+			return $results;
+		}
+	}
+
+	/**
+	 * @param $model
+	 * @param array $attributeNames
+	 */
+	public function modifyFileName(&$model, array $attributeNames)
+	{
+		foreach ($attributeNames as $key => $value) {
+			$name = substr($model->$key->name,0, strrpos($model->$key->name, '.',-1));
+			$model->$key->name = $name.time().'.'.$model->$key->size.'x'.UserProfileRepository::$maxSize.'.png';
+		}
+	}
+
+	/**
+	 * @param $model
+	 * @param array $attributeNames
+	 * @param string $path
+	 * @return array
+	 */
+	public function sendUploadFiles($model, array $attributeNames, string $path) : array
+	{
+		$downloadResults = [];
+		$env = YII_ENV_PROD? '' : 'test.';
+		$remoteHost = PROTOCOL.'://static.'.$env.'wooppay.com/';
+		foreach ($attributeNames as $key => $value) {
+			if ($model->$key instanceof UploadedFile) {
+				if (StaticServerFileSync::moveTo($model->$key, $path)) {
+					$downloadResults[$key] = true;
+				} else {
+					$downloadResults[$key] = false;
+				}
+			} else {
+				$deletePath = str_replace($remoteHost,'', $value);
+				if (StaticServerFileSync::remove($deletePath)) {
+					$downloadResults[$key] = true;
+				} else {
+					$downloadResults[$key] = false;
+				}
+			}
+		}
+		return $downloadResults;
+	}
 }
