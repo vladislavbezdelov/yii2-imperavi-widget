@@ -170,7 +170,7 @@ class UploadFileAction extends Action
 					    ];
 				    }
 
-				    if ($model->file->saveAs($this->path . $model->file->name)) {
+//				    if ($model->file->saveAs($this->path . $model->file->name)) {
 					    $setImage = $this->setImage($model);
 					    if ($setImage['file']) {
 						    $result = ['id' => $model->file->name, 'filelink' => $this->url . $model->file->name];
@@ -180,11 +180,11 @@ class UploadFileAction extends Action
 					    if ($this->uploadOnlyImage !== true) {
 						    $result['filename'] = $model->file->name;
 					    }
-				    } else {
-					    $result = [
-						    'error' => Yii::t('vova07/imperavi', 'ERROR_CAN_NOT_UPLOAD_FILE'),
-					    ];
-				    }
+//				    } else {
+//					    $result = [
+//						    'error' => Yii::t('vova07/imperavi', 'ERROR_CAN_NOT_UPLOAD_FILE'),
+//					    ];
+//				    }
 			    }
 
 			    return $result;
