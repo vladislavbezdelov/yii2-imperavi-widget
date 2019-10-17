@@ -168,8 +168,10 @@ class UploadFileAction extends Action
 
                 if ($model->file->saveAs($this->path . $model->file->name)) {
 	                $setImage = $this->setImage($model);
-	                if ($setImage) {
+	                if ($setImage['file']) {
 		                $result = ['id' => $model->file->name, 'filelink' => $this->url . $model->file->name];
+	                } else {
+	                	$result = ['error' => 'error'];
 	                }
                     if ($this->uploadOnlyImage !== true) {
                         $result['filename'] = $model->file->name;
