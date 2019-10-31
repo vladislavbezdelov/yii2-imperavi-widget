@@ -91,6 +91,8 @@ class Widget extends BaseWidget
      */
     public $plugins = [];
 
+    public $scripts = false;
+
     /**
      * @var boolean Whether to render the `textarea` or not.
      */
@@ -211,7 +213,7 @@ class Widget extends BaseWidget
     {
         $view = $this->getView();
         /** @var Asset $asset */
-        $asset = Yii::$container->get(Asset::className());
+        $asset = $this->scripts ? Yii::$container->get(AssetWoop::className()) : Yii::$container->get(Asset::className());
         $asset = $asset::register($view);
 
         if (isset($this->settings['lang'])) {
