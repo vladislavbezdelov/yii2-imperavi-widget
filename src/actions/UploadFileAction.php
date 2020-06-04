@@ -64,6 +64,11 @@ use yii\web\UploadedFile;
  */
 class UploadFileAction extends Action
 {
+	/**
+	 * @var string Folder
+	 */
+	public $folder;
+
     /**
      * @var string Path to directory where files will be uploaded.
      */
@@ -203,7 +208,7 @@ class UploadFileAction extends Action
 				}
 			}
 			$this->modifyFileName($model, $modifiedAttributes);
-			$results = $this->sendUploadFiles($model, $modifiedAttributes, $this->path);
+			$results = $this->sendUploadFiles($model, $modifiedAttributes, $this->folder);
 			return $results;
 		}
 	}
