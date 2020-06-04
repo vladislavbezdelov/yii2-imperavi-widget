@@ -203,7 +203,7 @@ class UploadFileAction extends Action
 				}
 			}
 			$this->modifyFileName($model, $modifiedAttributes);
-			$results = $this->sendUploadFiles($model, $modifiedAttributes, 'banner/');
+			$results = $this->sendUploadFiles($model, $modifiedAttributes, $this->path);
 			return $results;
 		}
 	}
